@@ -4,7 +4,7 @@
 <footer class="site-footer">
     <div class="container footer-grid">
         <div>
-            <a class="brand brand-light" href="<?= url('index.php') ?>">
+            <a class="brand brand-light" href="<?= url(home_page()) ?>">
                 <span class="brand-mark">F</span>
                 <span>FoodFusion</span>
             </a>
@@ -48,6 +48,25 @@
 </section>
 
 <?php if (!$user): ?>
+<?php if (!in_array($currentPage, ['login.php', 'register.php', 'forgot_password.php', 'reset_password.php'], true)): ?>
+<div class="modal" id="login-modal" role="dialog" aria-modal="true" aria-labelledby="login-modal-title" hidden>
+    <div class="modal-panel">
+        <button class="modal-close" type="button" data-close-login aria-label="Close login">&times;</button>
+        <p class="eyebrow">Welcome to the table</p>
+        <h2 id="login-modal-title">Log in to FoodFusion</h2>
+        <p>Save your favourite recipes and share your cooking stories.</p>
+        <form class="stack-form" action="<?= url('login.php') ?>" method="post">
+            <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
+            <label>Email address<input type="email" name="email" maxlength="100" required autocomplete="email"></label>
+            <label>Password<input type="password" name="password" required autocomplete="current-password"></label>
+            <button class="button button-block" type="submit">Log in</button>
+            <a href="<?= url('forgot_password.php') ?>">Forgot your password?</a>
+            <p>New here? <a href="<?= url('register.php') ?>" data-open-join>Create an account</a>.</p>
+            <button class="button button-outline" type="button" data-close-login>Continue as visitor</button>
+        </form>
+    </div>
+</div>
+<?php endif; ?>
 <div class="modal" id="join-modal" role="dialog" aria-modal="true" aria-labelledby="join-title" hidden>
     <div class="modal-panel">
         <button class="modal-close" type="button" data-close-join aria-label="Close sign-up form">&times;</button>
