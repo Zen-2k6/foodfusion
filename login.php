@@ -1,6 +1,10 @@
 <?php
 require_once __DIR__ . '/config/app.php';
 
+if (is_logged_in()) {
+    redirect(home_page());
+}
+
 $error = '';
 
 if (is_post_request()) {
@@ -44,7 +48,7 @@ if (is_post_request()) {
                     ];
 
                     set_flash('success', 'Welcome back, ' . $account['first_name'] . '!');
-                    redirect('index.php');
+                    redirect(home_page());
                 }
 
                 $attempts = (int) $account['failed_attempts'] + 1;
