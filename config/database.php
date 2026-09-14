@@ -1,6 +1,5 @@
 <?php
-// Simple PDO connection for the default XAMPP MySQL settings.
-// XAMPP normally uses the root account with no password on a local computer.
+// Local MySQL connection; environment variables can override these defaults.
 $host = getenv('FOODFUSION_DB_HOST') ?: 'localhost';
 $database = getenv('FOODFUSION_DB_NAME') ?: 'foodfusion';
 $username = getenv('FOODFUSION_DB_USER') ?: 'root';
@@ -25,5 +24,5 @@ try {
 } catch (PDOException $error) {
     // A simple message is useful for this local classroom demonstration.
     // A production website should log the real error instead of displaying it.
-    exit('Database connection failed. Please start MySQL in XAMPP and import database/foodfusion.sql.');
+    exit('Database connection failed. Please start MySQL and import database/foodfusion.sql.');
 }

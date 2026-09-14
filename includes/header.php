@@ -23,7 +23,7 @@ $user = current_user();
 
 <header class="site-header">
     <nav class="nav container" aria-label="Main navigation">
-        <a class="brand" href="<?= url('index.php') ?>" aria-label="FoodFusion home">
+        <a class="brand" href="<?= url(home_page()) ?>" aria-label="FoodFusion home">
             <span class="brand-mark">F</span>
             <span>FoodFusion</span>
         </a>
@@ -34,7 +34,15 @@ $user = current_user();
         </button>
 
         <div class="nav-links" id="nav-links">
-            <a class="<?= $currentPage === 'index.php' ? 'active' : '' ?>" href="<?= url('index.php') ?>">Home</a>
+            <?php if (is_admin()): ?>
+                <a class="<?= $currentPage === 'admin.php' ? 'active' : '' ?>" href="<?= url('admin.php') ?>">Dashboard</a>
+                <a href="<?= url('admin.php#community-posts') ?>">Moderation</a>
+                <a href="<?= url('admin.php#recipe-status') ?>">Recipes</a>
+                <a href="<?= url('admin.php#messages') ?>">Messages</a>
+                <a href="<?= url('admin.php#users') ?>">Users</a>
+                <a href="<?= url('community.php') ?>">Browse community</a>
+            <?php else: ?>
+            <a class="<?= in_array($currentPage, ['index.php', 'member.php'], true) ? 'active' : '' ?>" href="<?= url(home_page()) ?>"><?= is_logged_in() ? 'My Home' : 'Home' ?></a>
             <a class="<?= $currentPage === 'about.php' ? 'active' : '' ?>" href="<?= url('about.php') ?>">About Us</a>
             <a class="<?= in_array($currentPage, ['recipes.php', 'recipe.php'], true) ? 'active' : '' ?>" href="<?= url('recipes.php') ?>">Recipe Collection</a>
             <div class="nav-dropdown <?= in_array($currentPage, ['community.php', 'community-post.php', 'my-wall.php', 'community-post-form.php'], true) ? 'active' : '' ?>">
@@ -43,17 +51,20 @@ $user = current_user();
                 </button>
                 <div class="nav-dropdown-menu" id="community-nav-menu">
                     <a class="<?= in_array($currentPage, ['community.php', 'community-post.php'], true) ? 'active' : '' ?>" href="<?= url('community.php') ?>">Community</a>
+                    <?php if ($user): ?>
                     <a class="<?= in_array($currentPage, ['my-wall.php', 'community-post-form.php'], true) ? 'active' : '' ?>" href="<?= url('my-wall.php') ?>">My Wall</a>
+                    <?php endif; ?>
                 </div>
             </div>
             <a class="<?= $currentPage === 'culinary-resources.php' ? 'active' : '' ?>" href="<?= url('culinary-resources.php') ?>">Culinary Resources</a>
             <a class="<?= $currentPage === 'educational-resources.php' ? 'active' : '' ?>" href="<?= url('educational-resources.php') ?>">Educational Resources</a>
             <a class="<?= $currentPage === 'contact.php' ? 'active' : '' ?>" href="<?= url('contact.php') ?>">Contact Us</a>
+            <?php endif; ?>
         </div>
 
         <div class="nav-actions <?= $user ? 'has-user' : '' ?>">
             <?php if ($user): ?>
-                <span class="nav-user">Hi, <?= e($user['first_name']) ?></span>
+                <span class="nav-user"><?= is_admin() ? 'Admin' : 'Member' ?> &middot; <?= e($user['first_name']) ?></span>
                 <a class="text-link" href="<?= url('profile.php') ?>">Profile</a>
                 <?php if (is_admin()): ?>
                     <a class="button button-small button-admin" href="<?= url('admin.php') ?>">Admin Dashboard</a>

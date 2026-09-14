@@ -1,5 +1,5 @@
--- FoodFusion database for XAMPP MySQL / MariaDB
--- Import this file once from phpMyAdmin.
+-- FoodFusion database for MySQL / MariaDB
+-- Import from the project directory: mysql -u root < database/foodfusion.sql
 
 CREATE DATABASE IF NOT EXISTS foodfusion
     CHARACTER SET utf8mb4

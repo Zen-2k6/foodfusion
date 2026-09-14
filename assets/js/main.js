@@ -46,10 +46,38 @@ document.addEventListener('DOMContentLoaded', () => {
     const openButtons = document.querySelectorAll('[data-open-join]');
     const closeButton = document.querySelector('[data-close-join]');
     let lastFocusedElement = null;
+    const loginModal = document.querySelector('#login-modal');
+
+    function closeLoginModal() {
+        if (!loginModal || loginModal.hidden) return;
+        loginModal.hidden = true;
+        document.body.classList.remove('modal-open');
+        document.querySelector('.nav-actions .text-link')?.focus();
+    }
+
+    document.querySelectorAll('[data-close-login]').forEach((button) => {
+        button.addEventListener('click', closeLoginModal);
+    });
+    loginModal?.addEventListener('click', (event) => {
+        if (event.target === loginModal) closeLoginModal();
+    });
+
+    // Prompt once per tab visit; authentication pages have their own forms.
+    let loginPromptSeen = false;
+    try {
+        loginPromptSeen = sessionStorage.getItem('foodfusion_login_prompt_seen') === '1';
+    } catch (_) { /* The popup still works when browser storage is unavailable. */ }
+    if (loginModal && !loginPromptSeen && window.location.hash !== '#join') {
+        loginModal.hidden = false;
+        document.body.classList.add('modal-open');
+        loginModal.querySelector('input[type="email"]')?.focus();
+        try { sessionStorage.setItem('foodfusion_login_prompt_seen', '1'); } catch (_) {}
+    }
 
     function openModal(event) {
         if (!modal) return;
         event.preventDefault();
+        closeLoginModal();
         lastFocusedElement = event.currentTarget;
         modal.hidden = false;
         document.body.classList.add('modal-open');
@@ -69,6 +97,20 @@ document.addEventListener('DOMContentLoaded', () => {
         if (event.target === modal) closeModal();
     });
     document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape') closeLoginModal();
+        const activeModal = [modal, loginModal].find((item) => item && !item.hidden);
+        if (event.key === 'Tab' && activeModal) {
+            const focusable = Array.from(activeModal.querySelectorAll('a[href], button, input:not([type="hidden"])')).filter((item) => !item.disabled);
+            const first = focusable[0];
+            const last = focusable[focusable.length - 1];
+            if (event.shiftKey && document.activeElement === first) {
+                event.preventDefault();
+                last?.focus();
+            } else if (!event.shiftKey && document.activeElement === last) {
+                event.preventDefault();
+                first?.focus();
+            }
+        }
         if (event.key === 'Escape' && modal && !modal.hidden) closeModal();
         if (event.key === 'Escape') {
             document.querySelectorAll('.nav-dropdown.is-open').forEach((dropdown) => {

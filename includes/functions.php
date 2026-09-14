@@ -58,6 +58,11 @@ function is_admin(): bool
     return is_logged_in() && current_user()['role'] === 'admin';
 }
 
+function home_page(): string
+{
+    return is_admin() ? 'admin.php' : (is_logged_in() ? 'member.php' : 'index.php');
+}
+
 function require_admin(): void
 {
     if (!is_logged_in()) {

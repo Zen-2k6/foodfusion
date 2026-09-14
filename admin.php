@@ -35,7 +35,7 @@ if (is_post_request()) {
 
 $counts = $pdo->query(
     "SELECT
-        (SELECT COUNT(*) FROM users) AS users,
+        (SELECT COUNT(*) FROM users WHERE role = 'member') AS users,
         (SELECT COUNT(*) FROM recipes WHERE status = 'published') AS recipes,
         (SELECT COUNT(*) FROM community_posts WHERE status = 'pending') AS pending_posts,
         (SELECT COUNT(*) FROM contact_messages) AS messages"
@@ -94,7 +94,7 @@ require __DIR__ . '/includes/header.php';
             <article><span>Contact messages</span><strong><?= (int) $counts['messages'] ?></strong></article>
         </div>
 
-        <section class="admin-panel">
+        <section class="admin-panel" id="community-posts">
             <div class="admin-panel-heading">
                 <div><p class="eyebrow">Moderation</p><h2>Community posts</h2></div>
                 <p>Approve suitable posts or reject content that should stay private.</p>
@@ -127,7 +127,7 @@ require __DIR__ . '/includes/header.php';
             </div>
         </section>
 
-        <section class="admin-panel">
+        <section class="admin-panel" id="recipe-status">
             <div class="admin-panel-heading">
                 <div><p class="eyebrow">Collection</p><h2>Recipe status</h2></div>
                 <a class="arrow-link" href="<?= url('recipes.php') ?>">View public recipes &rarr;</a>
@@ -161,7 +161,7 @@ require __DIR__ . '/includes/header.php';
         </section>
 
         <div class="admin-two-column">
-            <section class="admin-panel">
+            <section class="admin-panel" id="messages">
                 <div class="admin-panel-heading"><div><p class="eyebrow">Inbox</p><h2>Recent messages</h2></div></div>
                 <div class="admin-list">
                     <?php foreach ($messages as $message): ?>
@@ -173,7 +173,7 @@ require __DIR__ . '/includes/header.php';
                 </div>
             </section>
 
-            <section class="admin-panel">
+            <section class="admin-panel" id="users">
                 <div class="admin-panel-heading"><div><p class="eyebrow">Accounts</p><h2>Recent users</h2></div></div>
                 <div class="admin-list user-list">
                     <?php foreach ($recentUsers as $recentUser): ?>

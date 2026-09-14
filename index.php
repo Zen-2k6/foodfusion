@@ -1,6 +1,10 @@
 <?php
 require_once __DIR__ . '/config/app.php';
 
+if (is_logged_in()) {
+    redirect(home_page());
+}
+
 $featuredRecipes = $pdo->query(
     "SELECT recipe_id, title, description, cuisine_type, dietary_preference,
             difficulty, image_path

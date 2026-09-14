@@ -1,25 +1,27 @@
 # FoodFusion
 
-FoodFusion is a PHP, MySQL and JavaScript student project for an NCC Level 5 Back End Web Development assignment. It is designed for a local XAMPP classroom demonstration, not production deployment.
+FoodFusion is a PHP, MySQL and JavaScript student project for an NCC Level 5 Back End Web Development assignment. It is designed for a local classroom demonstration, not production deployment.
 
-## Database setup in XAMPP
+## Local MySQL setup
 
-1. Open XAMPP and start **Apache** and **MySQL**.
-2. Visit [http://localhost/phpmyadmin](http://localhost/phpmyadmin).
-3. Select **Import**.
-4. Choose `database/foodfusion.sql` from this project.
-5. Select **Import** or **Go** at the bottom of the page.
-6. Check that the `foodfusion` database contains eleven tables.
-7. Visit [http://localhost/foodfusion/](http://localhost/foodfusion/).
+With MySQL running, execute these commands from the project directory:
 
-The project includes a simple PDO connection file at `config/database.php`. Its settings match the normal local XAMPP defaults:
+```sh
+mysql -u root < database/foodfusion.sql
+mysql -u root -e 'SHOW TABLES FROM foodfusion;'
+php -S localhost:8000
+```
+
+The import creates eleven tables and loads the demo records. Visit [http://localhost:8000/](http://localhost:8000/). PHP must have the `pdo_mysql` extension enabled.
+
+The PDO connection in `config/database.php` uses these local MySQL defaults:
 
 - Host: `localhost`
 - Database: `foodfusion`
 - Username: `root`
 - Password: empty
 
-If your local MySQL password is different, change only `$password` in `config/database.php`.
+Override settings with `FOODFUSION_DB_HOST`, `FOODFUSION_DB_NAME`, `FOODFUSION_DB_USER`, or `FOODFUSION_DB_PASSWORD` if needed. Set `FOODFUSION_DB_SOCKET` if MySQL uses a custom socket path.
 
 ## Demo accounts
 
