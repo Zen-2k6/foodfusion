@@ -144,205 +144,203 @@ $culinaryCount = $pdo->query("SELECT COUNT(*) FROM resources WHERE resource_cate
 $educationalCount = $pdo->query("SELECT COUNT(*) FROM resources WHERE resource_category = 'educational'")->fetchColumn();
 
 $pageTitle = 'Manage Resources';
-require __DIR__ . '/includes/header.php';
+require __DIR__ . '/includes/admin-header.php';
 ?>
 
-<section class="page-hero compact-hero admin-hero">
-    <div class="container">
-        <p class="eyebrow">Admin Control</p>
-        <h1>Manage Resources</h1>
-        <p>Upload and organize cooking tutorials, printable culinary PDF cards, kitchen guides, and instructional videos.</p>
-        <div class="hero-actions">
-            <a class="button" href="#resource-form"><?= $editingResource ? 'Edit Resource Below' : '+ Add New Resource' ?></a>
-            <a class="button button-outline" style="color:#fff; border-color: rgba(255,255,255,.5);" href="<?= url('culinary-resources.php') ?>" target="_blank">View Culinary &rarr;</a>
-            <a class="button button-outline" style="color:#fff; border-color: rgba(255,255,255,.5);" href="<?= url('educational-resources.php') ?>" target="_blank">View Educational &rarr;</a>
+<!-- Admin Page Header -->
+<div class="admin-header-title">
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 14px;">
+        <div>
+            <h1>Manage Resources</h1>
+            <p>Upload and organize cooking tutorials, printable culinary PDF cards, kitchen guides, and instructional videos.</p>
+        </div>
+        <div style="display: flex; gap: 8px;">
+            <a class="button button-small" href="#resource-form"><?= $editingResource ? 'Edit Resource Below' : '+ Add New Resource' ?></a>
+            <a class="button button-small button-outline" href="<?= url('culinary-resources.php') ?>" target="_blank">View Culinary &rarr;</a>
+            <a class="button button-small button-outline" href="<?= url('educational-resources.php') ?>" target="_blank">View Educational &rarr;</a>
         </div>
     </div>
-</section>
+</div>
 
-<section class="section">
-    <div class="container">
+<!-- Resource Form Card (Add or Edit) -->
+<section class="admin-card" id="resource-form">
+    <div class="admin-card-header">
+        <div>
+            <p class="eyebrow" style="margin-bottom: 2px;"><?= $editingResource ? 'Edit Resource #' . $editingResource['resource_id'] : 'New Resource Upload' ?></p>
+            <h2><?= $editingResource ? 'Edit: ' . e($editingResource['title']) : 'Add New Resource' ?></h2>
+            <p><?= $editingResource ? 'Update details, download files, or video URLs.' : 'Provide guides, recipe cards, or tutorials for home cooks.' ?></p>
+        </div>
+        <?php if ($editingResource): ?>
+            <a class="button button-small button-outline" href="<?= url('manage-resources.php') ?>">Cancel Edit</a>
+        <?php endif; ?>
+    </div>
 
-        <!-- Resource Form (Add or Edit) -->
-        <section class="admin-panel" id="resource-form" style="margin-bottom: 40px;">
-            <div class="admin-panel-heading">
-                <div>
-                    <p class="eyebrow"><?= $editingResource ? 'Edit Resource #' . $editingResource['resource_id'] : 'New Educational or Culinary Resource' ?></p>
-                    <h2><?= $editingResource ? 'Edit: ' . e($editingResource['title']) : 'Add New Resource' ?></h2>
-                </div>
-                <?php if ($editingResource): ?>
-                    <a class="button button-small button-outline" href="<?= url('manage-resources.php') ?>">Cancel Edit</a>
-                <?php endif; ?>
-            </div>
+    <?php if ($errors): ?>
+        <div class="form-errors" role="alert" style="margin-bottom: 20px;">
+            <strong>Please correct the following:</strong>
+            <ul><?php foreach ($errors as $err): ?><li><?= e($err) ?></li><?php endforeach; ?></ul>
+        </div>
+    <?php endif; ?>
 
-            <?php if ($errors): ?>
-                <div class="form-errors" role="alert">
-                    <strong>Please correct the following:</strong>
-                    <ul><?php foreach ($errors as $err): ?><li><?= e($err) ?></li><?php endforeach; ?></ul>
+    <form class="stack-form" method="post" enctype="multipart/form-data">
+        <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
+        <input type="hidden" name="action" value="save_resource">
+        <?php if ($editingResource): ?>
+            <input type="hidden" name="resource_id" value="<?= (int) $editingResource['resource_id'] ?>">
+        <?php endif; ?>
+
+        <div class="form-row">
+            <label>Resource Title
+                <input type="text" name="title" maxlength="100" value="<?= e($editingResource['title'] ?? ($_POST['title'] ?? '')) ?>" placeholder="e.g. Traditional Mohinga Preparation Guide" required>
+            </label>
+
+            <label>Resource Category
+                <select name="resource_category" required>
+                    <option value="culinary" <?= ($editingResource['resource_category'] ?? ($_POST['resource_category'] ?? 'culinary')) === 'culinary' ? 'selected' : '' ?>>Culinary Resources</option>
+                    <option value="educational" <?= ($editingResource['resource_category'] ?? ($_POST['resource_category'] ?? '')) === 'educational' ? 'selected' : '' ?>>Educational Resources</option>
+                </select>
+            </label>
+
+            <label>Resource Type
+                <select name="resource_type" required>
+                    <option value="tutorial" <?= ($editingResource['resource_type'] ?? ($_POST['resource_type'] ?? 'tutorial')) === 'tutorial' ? 'selected' : '' ?>>Tutorial</option>
+                    <option value="recipe_card" <?= ($editingResource['resource_type'] ?? '') === 'recipe_card' ? 'selected' : '' ?>>Recipe Card (PDF)</option>
+                    <option value="video" <?= ($editingResource['resource_type'] ?? '') === 'video' ? 'selected' : '' ?>>Video (YouTube)</option>
+                    <option value="guide" <?= ($editingResource['resource_type'] ?? '') === 'guide' ? 'selected' : '' ?>>Guide</option>
+                    <option value="article" <?= ($editingResource['resource_type'] ?? '') === 'article' ? 'selected' : '' ?>>Article / Lesson</option>
+                </select>
+            </label>
+        </div>
+
+        <label>Description / Overview
+            <textarea name="description" rows="3" maxlength="1000" placeholder="Describe the resource, techniques covered, or learning outcomes..." required><?= e($editingResource['description'] ?? ($_POST['description'] ?? '')) ?></textarea>
+        </label>
+
+        <!-- Resource File or URL -->
+        <fieldset style="border: 1px solid var(--line); border-radius: 12px; padding: 18px; margin: 12px 0; background: #fafbfa;">
+            <legend style="font-weight: 700; padding: 0 8px; color: var(--ink);">Resource File or Video Link</legend>
+
+            <?php if ($editingResource && $editingResource['file_path']): ?>
+                <div style="margin-bottom: 12px; font-size: .85rem;">
+                    <strong>Current File / Link:</strong> 
+                    <a href="<?= e(str_starts_with($editingResource['file_path'], 'http') ? $editingResource['file_path'] : url($editingResource['file_path'])) ?>" target="_blank" rel="noopener">
+                        <?= e($editingResource['file_path']) ?>
+                    </a>
                 </div>
             <?php endif; ?>
 
-            <form class="stack-form" method="post" enctype="multipart/form-data">
-                <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
-                <input type="hidden" name="action" value="save_resource">
-                <?php if ($editingResource): ?>
-                    <input type="hidden" name="resource_id" value="<?= (int) $editingResource['resource_id'] ?>">
-                <?php endif; ?>
+            <label for="resource_file">Option 1: Upload PDF / Tutorial File
+                <input id="resource_file" type="file" name="resource_file" accept=".pdf,.doc,.docx,.html,.txt">
+                <small>Upload downloadable PDF guide, recipe card, or tutorial (max 15MB).</small>
+            </label>
 
-                <div class="form-row">
-                    <label>Resource Title
-                        <input type="text" name="title" maxlength="100" value="<?= e($editingResource['title'] ?? ($_POST['title'] ?? '')) ?>" placeholder="e.g. Traditional Mohinga Preparation Guide" required>
-                    </label>
+            <div style="text-align: center; margin: 10px 0; font-weight: 700; color: var(--ink-soft); font-size: .85rem;">— OR —</div>
 
-                    <label>Resource Category
-                        <select name="resource_category" required>
-                            <option value="culinary" <?= ($editingResource['resource_category'] ?? ($_POST['resource_category'] ?? 'culinary')) === 'culinary' ? 'selected' : '' ?>>Culinary Resources</option>
-                            <option value="educational" <?= ($editingResource['resource_category'] ?? ($_POST['resource_category'] ?? '')) === 'educational' ? 'selected' : '' ?>>Educational Resources</option>
-                        </select>
-                    </label>
+            <label for="file_url">Option 2: Video or External URL
+                <input id="file_url" type="url" name="file_url" value="<?= e($editingResource['file_path'] ?? ($_POST['file_url'] ?? '')) ?>" placeholder="https://www.youtube.com/watch?v=...">
+                <small>Paste a YouTube video URL or article link.</small>
+            </label>
+        </fieldset>
 
-                    <label>Resource Type
-                        <select name="resource_type" required>
-                            <option value="tutorial" <?= ($editingResource['resource_type'] ?? ($_POST['resource_type'] ?? 'tutorial')) === 'tutorial' ? 'selected' : '' ?>>Tutorial</option>
-                            <option value="recipe_card" <?= ($editingResource['resource_type'] ?? '') === 'recipe_card' ? 'selected' : '' ?>>Recipe Card (PDF)</option>
-                            <option value="video" <?= ($editingResource['resource_type'] ?? '') === 'video' ? 'selected' : '' ?>>Video (YouTube)</option>
-                            <option value="guide" <?= ($editingResource['resource_type'] ?? '') === 'guide' ? 'selected' : '' ?>>Guide</option>
-                            <option value="article" <?= ($editingResource['resource_type'] ?? '') === 'article' ? 'selected' : '' ?>>Article / Lesson</option>
-                        </select>
-                    </label>
+        <!-- Thumbnail -->
+        <fieldset style="border: 1px solid var(--line); border-radius: 12px; padding: 18px; margin: 12px 0; background: #fafbfa;">
+            <legend style="font-weight: 700; padding: 0 8px; color: var(--ink);">Cover Thumbnail Image</legend>
+
+            <?php if ($editingResource && $editingResource['thumbnail_path']): ?>
+                <div style="margin-bottom: 12px;">
+                    <img src="<?= e(str_starts_with($editingResource['thumbnail_path'], 'http') ? $editingResource['thumbnail_path'] : url($editingResource['thumbnail_path'])) ?>" alt="" style="max-height: 90px; border-radius: 8px; object-fit: cover; box-shadow: 0 2px 6px rgba(0,0,0,0.1);">
                 </div>
+            <?php endif; ?>
 
-                <label>Description / Overview
-                    <textarea name="description" rows="3" maxlength="1000" placeholder="Describe the resource, techniques covered, or learning outcomes..." required><?= e($editingResource['description'] ?? ($_POST['description'] ?? '')) ?></textarea>
-                </label>
+            <label for="thumbnail_file">Upload Thumbnail File
+                <input id="thumbnail_file" type="file" name="thumbnail_file" accept="image/*">
+                <small>Upload JPG or PNG preview image.</small>
+            </label>
 
-                <!-- Resource File or URL -->
-                <fieldset style="border: 1px solid var(--line); border-radius: 12px; padding: 16px; margin: 10px 0;">
-                    <legend style="font-weight: 700; padding: 0 8px; color: var(--ink);">Resource File or Video URL</legend>
+            <div style="text-align: center; margin: 10px 0; font-weight: 700; color: var(--ink-soft); font-size: .85rem;">— OR —</div>
 
-                    <?php if ($editingResource && $editingResource['file_path']): ?>
-                        <div style="margin-bottom: 12px; font-size: .85rem;">
-                            <strong>Current File / Link:</strong> 
-                            <a href="<?= e(str_starts_with($editingResource['file_path'], 'http') ? $editingResource['file_path'] : url($editingResource['file_path'])) ?>" target="_blank" rel="noopener">
-                                <?= e($editingResource['file_path']) ?>
-                            </a>
+            <label for="thumbnail_url">Thumbnail Image URL
+                <input id="thumbnail_url" type="url" name="thumbnail_url" value="<?= e($editingResource['thumbnail_path'] ?? ($_POST['thumbnail_url'] ?? '')) ?>" placeholder="https://images.unsplash.com/...">
+            </label>
+        </fieldset>
+
+        <div class="form-actions" style="margin-top: 18px;">
+            <button class="button" type="submit"><?= $editingResource ? 'Update Resource' : 'Save &amp; Publish Resource' ?></button>
+            <?php if ($editingResource): ?>
+                <a class="button button-outline" href="<?= url('manage-resources.php') ?>">Cancel</a>
+            <?php endif; ?>
+        </div>
+    </form>
+</section>
+
+<!-- Resources Table Card -->
+<section class="admin-card" id="resources-list">
+    <div class="admin-card-header">
+        <div>
+            <p class="eyebrow" style="margin-bottom: 2px;">Resource Library</p>
+            <h2>Published Resources (<?= count($allResources) ?>)</h2>
+            <p>Filter between educational guides and culinary materials.</p>
+        </div>
+    </div>
+
+    <!-- Category Switcher Tabs -->
+    <div class="resource-switcher" style="margin-bottom: 22px;">
+        <a class="<?= $catFilter === '' ? 'active' : '' ?>" href="<?= url('manage-resources.php') ?>">All Resources (<?= $culinaryCount + $educationalCount ?>)</a>
+        <a class="<?= $catFilter === 'culinary' ? 'active' : '' ?>" href="<?= url('manage-resources.php?category=culinary') ?>">Culinary (<?= $culinaryCount ?>)</a>
+        <a class="<?= $catFilter === 'educational' ? 'active' : '' ?>" href="<?= url('manage-resources.php?category=educational') ?>">Educational (<?= $educationalCount ?>)</a>
+    </div>
+
+    <div class="table-scroll">
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th style="width: 65px;">Cover</th>
+                    <th>Resource Title &amp; Summary</th>
+                    <th>Category</th>
+                    <th>Type</th>
+                    <th>Download / Link</th>
+                    <th>Date Added</th>
+                    <th style="text-align: right;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+            <?php foreach ($allResources as $res): ?>
+                <tr>
+                    <td>
+                        <img class="admin-table-img" src="<?= e(str_starts_with($res['thumbnail_path'], 'http') ? $res['thumbnail_path'] : url($res['thumbnail_path'] ?: 'https://images.unsplash.com/photo-1556911220-e15b29be8c8f?auto=format&fit=crop&w=1200&q=80')) ?>" alt="">
+                    </td>
+                    <td>
+                        <strong><?= e($res['title']) ?></strong>
+                        <small style="color: var(--ink-soft);"><?= e(substr($res['description'], 0, 75)) ?>...</small>
+                    </td>
+                    <td>
+                        <span class="status <?= $res['resource_category'] === 'culinary' ? 'status-approved' : 'status-pending' ?>">
+                            <?= e(ucfirst($res['resource_category'])) ?>
+                        </span>
+                    </td>
+                    <td><span class="status" style="background: #eef2ef; color: var(--ink);"><?= e(str_replace('_', ' ', ucfirst($res['resource_type']))) ?></span></td>
+                    <td>
+                        <a href="<?= e(str_starts_with($res['file_path'], 'http') ? $res['file_path'] : url($res['file_path'])) ?>" target="_blank" rel="noopener" style="font-size: .82rem; font-weight: 700; color: var(--coral-dark); text-decoration: none;">
+                            <?= str_ends_with(strtolower($res['file_path']), '.pdf') ? '📄 PDF Guide' : (str_starts_with($res['file_path'], 'http') ? '🔗 Video / Web' : '📁 Document') ?>
+                        </a>
+                    </td>
+                    <td><small><?= e(date('j M Y', strtotime($res['created_at']))) ?></small></td>
+                    <td style="text-align: right;">
+                        <div class="table-actions" style="justify-content: flex-end;">
+                            <a class="button button-small button-outline" style="padding: 4px 10px; font-size: .8rem;" href="<?= url('manage-resources.php?action=edit&id=' . $res['resource_id'] . '#resource-form') ?>">Edit</a>
+                            <form method="post" onsubmit="return confirm('Are you sure you want to delete this resource?');" style="margin: 0;">
+                                <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
+                                <input type="hidden" name="action" value="delete">
+                                <input type="hidden" name="resource_id" value="<?= (int) $res['resource_id'] ?>">
+                                <button type="submit" class="danger" style="padding: 4px 10px; font-size: .8rem;">Delete</button>
+                            </form>
                         </div>
-                    <?php endif; ?>
-
-                    <label for="resource_file">Option 1: Upload PDF / Tutorial File
-                        <input id="resource_file" type="file" name="resource_file" accept=".pdf,.doc,.docx,.html,.txt">
-                        <small>Upload downloadable PDF guide, recipe card, or tutorial (max 15MB).</small>
-                    </label>
-
-                    <div style="text-align: center; margin: 8px 0; font-weight: 700; color: var(--ink-soft);">— OR —</div>
-
-                    <label for="file_url">Option 2: Video or External URL
-                        <input id="file_url" type="url" name="file_url" value="<?= e($editingResource['file_path'] ?? ($_POST['file_url'] ?? '')) ?>" placeholder="https://www.youtube.com/watch?v=...">
-                        <small>Paste a YouTube video URL or article link.</small>
-                    </label>
-                </fieldset>
-
-                <!-- Thumbnail -->
-                <fieldset style="border: 1px solid var(--line); border-radius: 12px; padding: 16px; margin: 10px 0;">
-                    <legend style="font-weight: 700; padding: 0 8px; color: var(--ink);">Cover Thumbnail Image</legend>
-
-                    <?php if ($editingResource && $editingResource['thumbnail_path']): ?>
-                        <div style="margin-bottom: 10px;">
-                            <img src="<?= e(str_starts_with($editingResource['thumbnail_path'], 'http') ? $editingResource['thumbnail_path'] : url($editingResource['thumbnail_path'])) ?>" alt="" style="max-height: 80px; border-radius: 6px; object-fit: cover;">
-                        </div>
-                    <?php endif; ?>
-
-                    <label for="thumbnail_file">Upload Thumbnail File
-                        <input id="thumbnail_file" type="file" name="thumbnail_file" accept="image/*">
-                        <small>Upload JPG or PNG preview image.</small>
-                    </label>
-
-                    <div style="text-align: center; margin: 8px 0; font-weight: 700; color: var(--ink-soft);">— OR —</div>
-
-                    <label for="thumbnail_url">Thumbnail Image URL
-                        <input id="thumbnail_url" type="url" name="thumbnail_url" value="<?= e($editingResource['thumbnail_path'] ?? ($_POST['thumbnail_url'] ?? '')) ?>" placeholder="https://images.unsplash.com/...">
-                    </label>
-                </fieldset>
-
-                <div class="form-actions">
-                    <button class="button" type="submit"><?= $editingResource ? 'Update Resource' : 'Save &amp; Publish Resource' ?></button>
-                    <?php if ($editingResource): ?>
-                        <a class="button button-outline" href="<?= url('manage-resources.php') ?>">Cancel</a>
-                    <?php endif; ?>
-                </div>
-            </form>
-        </section>
-
-        <!-- Resources Table -->
-        <section class="admin-panel" id="resources-list">
-            <div class="admin-panel-heading">
-                <div>
-                    <p class="eyebrow">Library</p>
-                    <h2>Published Resources (<?= count($allResources) ?>)</h2>
-                </div>
-            </div>
-
-            <!-- Category Switcher Tabs -->
-            <div class="resource-switcher" style="margin-bottom: 20px;">
-                <a class="<?= $catFilter === '' ? 'active' : '' ?>" href="<?= url('manage-resources.php') ?>">All Resources (<?= $culinaryCount + $educationalCount ?>)</a>
-                <a class="<?= $catFilter === 'culinary' ? 'active' : '' ?>" href="<?= url('manage-resources.php?category=culinary') ?>">Culinary (<?= $culinaryCount ?>)</a>
-                <a class="<?= $catFilter === 'educational' ? 'active' : '' ?>" href="<?= url('manage-resources.php?category=educational') ?>">Educational (<?= $educationalCount ?>)</a>
-            </div>
-
-            <div class="table-scroll">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Cover</th>
-                            <th>Title</th>
-                            <th>Category</th>
-                            <th>Type</th>
-                            <th>File / Link</th>
-                            <th>Date</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                    <?php foreach ($allResources as $res): ?>
-                        <tr>
-                            <td style="width: 65px;">
-                                <img src="<?= e(str_starts_with($res['thumbnail_path'], 'http') ? $res['thumbnail_path'] : url($res['thumbnail_path'] ?: 'https://images.unsplash.com/photo-1556911220-e15b29be8c8f?auto=format&fit=crop&w=1200&q=80')) ?>" alt="" style="width: 55px; height: 40px; object-fit: cover; border-radius: 6px;">
-                            </td>
-                            <td>
-                                <strong><?= e($res['title']) ?></strong>
-                                <br><small style="color: var(--ink-soft);"><?= e(substr($res['description'], 0, 75)) ?>...</small>
-                            </td>
-                            <td>
-                                <span class="status <?= $res['resource_category'] === 'culinary' ? 'status-approved' : 'status-pending' ?>">
-                                    <?= e(ucfirst($res['resource_category'])) ?>
-                                </span>
-                            </td>
-                            <td><?= e(str_replace('_', ' ', ucfirst($res['resource_type']))) ?></td>
-                            <td>
-                                <a href="<?= e(str_starts_with($res['file_path'], 'http') ? $res['file_path'] : url($res['file_path'])) ?>" target="_blank" rel="noopener" style="font-size: .82rem;">
-                                    <?= str_ends_with(strtolower($res['file_path']), '.pdf') ? '&#128196; Download PDF' : (str_starts_with($res['file_path'], 'http') ? '&#128279; External / YouTube' : '&#128193; File') ?>
-                                </a>
-                            </td>
-                            <td><small><?= e(date('j M Y', strtotime($res['created_at']))) ?></small></td>
-                            <td>
-                                <div class="table-actions">
-                                    <a class="button button-small button-outline" href="<?= url('manage-resources.php?action=edit&id=' . $res['resource_id'] . '#resource-form') ?>">Edit</a>
-                                    <form method="post" onsubmit="return confirm('Are you sure you want to delete this resource?');" style="margin: 0;">
-                                        <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
-                                        <input type="hidden" name="action" value="delete">
-                                        <input type="hidden" name="resource_id" value="<?= (int) $res['resource_id'] ?>">
-                                        <button type="submit" class="danger">Delete</button>
-                                    </form>
-                                </div>
-                            </td>
-                        </tr>
-                    <?php endforeach; ?>
-                    </tbody>
-                </table>
-            </div>
-        </section>
-
+                    </td>
+                </tr>
+            <?php endforeach; ?>
+            </tbody>
+        </table>
     </div>
 </section>
 
-<?php require __DIR__ . '/includes/footer.php'; ?>
+<?php require __DIR__ . '/includes/admin-footer.php'; ?>

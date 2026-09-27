@@ -102,7 +102,10 @@ require __DIR__ . '/includes/header.php';
                 <p class="eyebrow">Admin Inbox</p>
                 <h2>Visitor &amp; Member Feedback (<?= count($adminMessages) ?>)</h2>
             </div>
-            <span style="font-size: .85rem; color: var(--ink-soft);">Review messages and reply directly below</span>
+            <div style="display: flex; gap: 10px; align-items: center;">
+                <span style="font-size: .85rem; color: var(--ink-soft);">Review messages and reply directly below</span>
+                <a class="button button-small button-outline" href="<?= url('admin.php#messages') ?>">← Admin Dashboard</a>
+            </div>
         </div>
 
         <?php if ($adminMessages): ?>
