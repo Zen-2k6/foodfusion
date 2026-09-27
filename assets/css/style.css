@@ -351,6 +351,14 @@ td small { margin-top: 3px; color: var(--ink-soft); }
 .text-link-button { background: transparent; border: 0; padding: 0; color: var(--coral); font-weight: 700; text-decoration: underline; cursor: pointer; font-size: inherit; }
 .text-link-button:hover { color: var(--coral-dark); }
 
+/* Admin Live Site Preview Banner */
+.admin-preview-banner { background: #112019; color: #ffffff; font-size: 0.82rem; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.12); }
+.admin-preview-inner { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
+.admin-preview-left { display: flex; align-items: center; gap: 8px; color: rgba(255,255,255,0.9); }
+.admin-preview-dot { width: 8px; height: 8px; background: #4caf50; border-radius: 50%; display: inline-block; box-shadow: 0 0 6px #4caf50; }
+.admin-preview-btn { color: #ffffff; background: rgba(227,105,67,0.25); border: 1px solid var(--coral); padding: 4px 12px; border-radius: 6px; text-decoration: none; font-weight: 700; font-size: 0.78rem; transition: all 0.2s ease; }
+.admin-preview-btn:hover { background: var(--coral); color: #ffffff; transform: translateY(-1px); }
+
 @keyframes fade-in { from { opacity: 0; transform: translateX(15px); } to { opacity: 1; transform: none; } }
 @keyframes modal-in { from { opacity: 0; transform: translateY(20px) scale(.98); } to { opacity: 1; transform: none; } }
 
