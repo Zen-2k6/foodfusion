@@ -18,13 +18,32 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Community Cookbook dropdown
+    // Dropdown hover & click behavior
     document.querySelectorAll('.nav-dropdown').forEach((dropdown) => {
         const toggle = dropdown.querySelector('.nav-dropdown-toggle');
-        toggle?.addEventListener('click', () => {
+        let hoverTimeout = null;
+
+        const openDropdown = () => {
+            clearTimeout(hoverTimeout);
+            dropdown.classList.add('is-open');
+            toggle?.setAttribute('aria-expanded', 'true');
+        };
+
+        const closeDropdown = () => {
+            hoverTimeout = setTimeout(() => {
+                dropdown.classList.remove('is-open');
+                toggle?.setAttribute('aria-expanded', 'false');
+            }, 250);
+        };
+
+        dropdown.addEventListener('mouseenter', openDropdown);
+        dropdown.addEventListener('mouseleave', closeDropdown);
+
+        toggle?.addEventListener('click', (e) => {
             const isOpen = dropdown.classList.toggle('is-open');
             toggle.setAttribute('aria-expanded', String(isOpen));
         });
+
         dropdown.querySelectorAll('a').forEach((link) => {
             link.addEventListener('click', () => {
                 dropdown.classList.remove('is-open');
@@ -32,6 +51,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         });
     });
+
     document.addEventListener('click', (event) => {
         document.querySelectorAll('.nav-dropdown.is-open').forEach((dropdown) => {
             if (!dropdown.contains(event.target)) {
@@ -41,66 +61,102 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // Join Us modal
-    const modal = document.querySelector('#join-modal');
-    const openButtons = document.querySelectorAll('[data-open-join]');
-    const closeButton = document.querySelector('[data-close-join]');
+    // Unified Auth Modal (with Join Us and Log In tabs)
+    const authModal = document.querySelector('#auth-modal');
+    const openAuthButtons = document.querySelectorAll('[data-open-auth], [data-open-join]');
+    const closeAuthButtons = document.querySelectorAll('[data-close-auth]');
+    const tabButtons = document.querySelectorAll('[data-auth-tab]');
+    const switchButtons = document.querySelectorAll('[data-switch-auth]');
     let lastFocusedElement = null;
-    const loginModal = document.querySelector('#login-modal');
 
-    function closeLoginModal() {
-        if (!loginModal || loginModal.hidden) return;
-        loginModal.hidden = true;
-        document.body.classList.remove('modal-open');
-        document.querySelector('.nav-actions .text-link')?.focus();
+    function switchAuthTab(targetTab) {
+        const tabName = targetTab === 'login' ? 'login' : 'join';
+
+        tabButtons.forEach((btn) => {
+            const isActive = btn.dataset.authTab === tabName;
+            btn.classList.toggle('is-active', isActive);
+            btn.setAttribute('aria-selected', String(isActive));
+        });
+
+        const panelJoin = document.querySelector('#panel-join');
+        const panelLogin = document.querySelector('#panel-login');
+        if (panelJoin && panelLogin) {
+            if (tabName === 'login') {
+                panelJoin.hidden = true;
+                panelLogin.hidden = false;
+                panelLogin.querySelector('input[type="email"]')?.focus();
+            } else {
+                panelJoin.hidden = false;
+                panelLogin.hidden = true;
+                panelJoin.querySelector('input:not([type="hidden"])')?.focus();
+            }
+        }
     }
 
-    document.querySelectorAll('[data-close-login]').forEach((button) => {
-        button.addEventListener('click', closeLoginModal);
-    });
-    loginModal?.addEventListener('click', (event) => {
-        if (event.target === loginModal) closeLoginModal();
-    });
-
-    // Prompt once per tab visit; authentication pages have their own forms.
-    let loginPromptSeen = false;
-    try {
-        loginPromptSeen = sessionStorage.getItem('foodfusion_login_prompt_seen') === '1';
-    } catch (_) { /* The popup still works when browser storage is unavailable. */ }
-    if (loginModal && !loginPromptSeen && window.location.hash !== '#join') {
-        loginModal.hidden = false;
+    function openAuthModal(targetTab = 'join', triggerEl = null) {
+        if (!authModal) return;
+        lastFocusedElement = triggerEl || document.activeElement;
+        switchAuthTab(targetTab);
+        authModal.hidden = false;
         document.body.classList.add('modal-open');
-        loginModal.querySelector('input[type="email"]')?.focus();
-        try { sessionStorage.setItem('foodfusion_login_prompt_seen', '1'); } catch (_) {}
     }
 
-    function openModal(event) {
-        if (!modal) return;
-        event.preventDefault();
-        closeLoginModal();
-        lastFocusedElement = event.currentTarget;
-        modal.hidden = false;
-        document.body.classList.add('modal-open');
-        modal.querySelector('input:not([type="hidden"])')?.focus();
-    }
-
-    function closeModal() {
-        if (!modal) return;
-        modal.hidden = true;
+    function closeAuthModal() {
+        if (!authModal || authModal.hidden) return;
+        authModal.hidden = true;
         document.body.classList.remove('modal-open');
         lastFocusedElement?.focus();
     }
 
-    openButtons.forEach((button) => button.addEventListener('click', openModal));
-    closeButton?.addEventListener('click', closeModal);
-    modal?.addEventListener('click', (event) => {
-        if (event.target === modal) closeModal();
+    openAuthButtons.forEach((btn) => {
+        btn.addEventListener('click', (e) => {
+            e.preventDefault();
+            const tab = btn.dataset.openAuth || (btn.hasAttribute('data-open-join') ? 'join' : 'login');
+            openAuthModal(tab, btn);
+        });
     });
+
+    closeAuthButtons.forEach((btn) => btn.addEventListener('click', closeAuthModal));
+
+    tabButtons.forEach((btn) => {
+        btn.addEventListener('click', () => switchAuthTab(btn.dataset.authTab));
+    });
+
+    switchButtons.forEach((btn) => {
+        btn.addEventListener('click', (e) => {
+            e.preventDefault();
+            switchAuthTab(btn.dataset.switchAuth);
+        });
+    });
+
+    authModal?.addEventListener('click', (e) => {
+        if (e.target === authModal) closeAuthModal();
+    });
+
+    // 5-second delay popup for visitors; defaults to Join Us tab
+    let authPromptSeen = false;
+    try {
+        authPromptSeen = sessionStorage.getItem('foodfusion_auth_prompt_seen') === '1' || sessionStorage.getItem('foodfusion_login_prompt_seen') === '1';
+    } catch (_) { /* Browser storage fallback */ }
+
+    if (authModal && !authPromptSeen && window.location.hash !== '#join') {
+        setTimeout(() => {
+            if (authModal && !authPromptSeen && !document.body.classList.contains('modal-open') && window.location.hash !== '#join') {
+                openAuthModal('join');
+                try {
+                    sessionStorage.setItem('foodfusion_auth_prompt_seen', '1');
+                    sessionStorage.setItem('foodfusion_login_prompt_seen', '1');
+                } catch (_) {}
+            }
+        }, 5000);
+    }
+
     document.addEventListener('keydown', (event) => {
-        if (event.key === 'Escape') closeLoginModal();
-        const activeModal = [modal, loginModal].find((item) => item && !item.hidden);
-        if (event.key === 'Tab' && activeModal) {
-            const focusable = Array.from(activeModal.querySelectorAll('a[href], button, input:not([type="hidden"])')).filter((item) => !item.disabled);
+        if (event.key === 'Escape' && authModal && !authModal.hidden) {
+            closeAuthModal();
+        }
+        if (event.key === 'Tab' && authModal && !authModal.hidden) {
+            const focusable = Array.from(authModal.querySelectorAll('a[href], button:not([disabled]), input:not([type="hidden"]):not([disabled])'));
             const first = focusable[0];
             const last = focusable[focusable.length - 1];
             if (event.shiftKey && document.activeElement === first) {
@@ -111,7 +167,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 first?.focus();
             }
         }
-        if (event.key === 'Escape' && modal && !modal.hidden) closeModal();
         if (event.key === 'Escape') {
             document.querySelectorAll('.nav-dropdown.is-open').forEach((dropdown) => {
                 dropdown.classList.remove('is-open');
@@ -121,9 +176,9 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
     });
-    if (window.location.hash === '#join' && modal) {
-        modal.hidden = false;
-        document.body.classList.add('modal-open');
+
+    if (window.location.hash === '#join' && authModal) {
+        openAuthModal('join');
     }
 
     // Cookie acceptance

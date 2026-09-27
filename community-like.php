@@ -11,7 +11,7 @@ $postId = filter_var($_POST['post_id'] ?? null, FILTER_VALIDATE_INT);
 $returnPage = $_POST['return_page'] ?? 'community';
 $redirectPath = $returnPage === 'post' && $postId
     ? 'community-post.php?id=' . $postId
-    : 'community.php';
+    : 'community.php' . ($postId ? '#post-' . $postId : '');
 
 if (!$postId) {
     set_flash('error', 'A valid community post was not selected.');

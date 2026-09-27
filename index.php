@@ -1,8 +1,8 @@
 <?php
 require_once __DIR__ . '/config/app.php';
 
-if (is_logged_in()) {
-    redirect(home_page());
+if (is_logged_in() && !is_admin() && !isset($_GET['preview'])) {
+    redirect('member.php');
 }
 
 $featuredRecipes = $pdo->query(

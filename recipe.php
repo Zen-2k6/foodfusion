@@ -69,7 +69,7 @@ require __DIR__ . '/includes/header.php';
 
 <article class="recipe-detail">
     <div class="container recipe-detail-grid">
-        <div class="recipe-detail-image"><img src="<?= e($recipe['image_path']) ?>" alt="<?= e($recipe['title']) ?>"></div>
+        <div class="recipe-detail-image"><img src="<?= e(str_starts_with($recipe['image_path'] ?? '', 'http') ? $recipe['image_path'] : url($recipe['image_path'] ?? '')) ?>" alt="<?= e($recipe['title']) ?>"></div>
         <div class="recipe-intro">
             <a class="back-link" href="<?= url('recipes.php') ?>">&larr; Back to recipes</a>
             <div class="tag-row"><span><?= e($recipe['cuisine_type']) ?></span><span><?= e($recipe['difficulty']) ?></span><span><?= e($recipe['dietary_preference']) ?></span></div>
