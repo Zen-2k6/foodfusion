@@ -35,30 +35,49 @@ $user = current_user();
 
         <div class="nav-links" id="nav-links">
             <?php if (is_admin()): ?>
-                <a class="<?= $currentPage === 'admin.php' ? 'active' : '' ?>" href="<?= url('admin.php') ?>">Dashboard</a>
-                <a href="<?= url('admin.php#community-posts') ?>">Moderation</a>
-                <a href="<?= url('admin.php#recipe-status') ?>">Recipes</a>
-                <a href="<?= url('admin.php#messages') ?>">Messages</a>
-                <a href="<?= url('admin.php#users') ?>">Users</a>
-                <a href="<?= url('community.php') ?>">Browse community</a>
-            <?php else: ?>
-            <a class="<?= in_array($currentPage, ['index.php', 'member.php'], true) ? 'active' : '' ?>" href="<?= url(home_page()) ?>"><?= is_logged_in() ? 'My Home' : 'Home' ?></a>
-            <a class="<?= $currentPage === 'about.php' ? 'active' : '' ?>" href="<?= url('about.php') ?>">About Us</a>
-            <a class="<?= in_array($currentPage, ['recipes.php', 'recipe.php'], true) ? 'active' : '' ?>" href="<?= url('recipes.php') ?>">Recipe Collection</a>
-            <div class="nav-dropdown <?= in_array($currentPage, ['community.php', 'community-post.php', 'my-wall.php', 'community-post-form.php'], true) ? 'active' : '' ?>">
-                <button class="nav-dropdown-toggle" type="button" aria-expanded="false" aria-controls="community-nav-menu">
-                    Community Cookbook <span aria-hidden="true">&#9662;</span>
-                </button>
-                <div class="nav-dropdown-menu" id="community-nav-menu">
-                    <a class="<?= in_array($currentPage, ['community.php', 'community-post.php'], true) ? 'active' : '' ?>" href="<?= url('community.php') ?>">Community</a>
-                    <?php if ($user): ?>
-                    <a class="<?= in_array($currentPage, ['my-wall.php', 'community-post-form.php'], true) ? 'active' : '' ?>" href="<?= url('my-wall.php') ?>">My Wall</a>
-                    <?php endif; ?>
+                <a class="<?= $currentPage === 'admin.php' ? 'active' : '' ?>" href="<?= url('admin.php') ?>">Home</a>
+                <a class="<?= $currentPage === 'about.php' ? 'active' : '' ?>" href="<?= url('about.php') ?>">About Us</a>
+                <a class="<?= in_array($currentPage, ['community.php', 'community-post.php'], true) ? 'active' : '' ?>" href="<?= url('community.php') ?>">Community Cookbook</a>
+                <a class="<?= $currentPage === 'manage-recipes.php' ? 'active' : '' ?>" href="<?= url('manage-recipes.php') ?>">Manage Recipes</a>
+                <a class="<?= $currentPage === 'manage-resources.php' ? 'active' : '' ?>" href="<?= url('manage-resources.php') ?>">Manage Resources</a>
+                <a class="<?= $currentPage === 'contact.php' ? 'active' : '' ?>" href="<?= url('contact.php') ?>">Contact Us</a>
+            <?php elseif (is_logged_in()): ?>
+                <a class="<?= in_array($currentPage, ['member.php', 'index.php'], true) ? 'active' : '' ?>" href="<?= url('member.php') ?>">My Home</a>
+                <a class="<?= $currentPage === 'about.php' ? 'active' : '' ?>" href="<?= url('about.php') ?>">About Us</a>
+                <a class="<?= in_array($currentPage, ['recipes.php', 'recipe.php'], true) ? 'active' : '' ?>" href="<?= url('recipes.php') ?>">Recipe Collection</a>
+                <div class="nav-dropdown <?= in_array($currentPage, ['community.php', 'community-post.php', 'my-wall.php', 'community-post-form.php'], true) ? 'active' : '' ?>">
+                    <button class="nav-dropdown-toggle" type="button" aria-expanded="false" aria-controls="community-nav-menu">
+                        Community Cookbook <span aria-hidden="true">&#9662;</span>
+                    </button>
+                    <div class="nav-dropdown-menu" id="community-nav-menu">
+                        <a class="<?= in_array($currentPage, ['community.php', 'community-post.php'], true) ? 'active' : '' ?>" href="<?= url('community.php') ?>">Community Posts</a>
+                        <a class="<?= in_array($currentPage, ['my-wall.php', 'community-post-form.php'], true) ? 'active' : '' ?>" href="<?= url('my-wall.php') ?>">My Wall</a>
+                    </div>
                 </div>
-            </div>
-            <a class="<?= $currentPage === 'culinary-resources.php' ? 'active' : '' ?>" href="<?= url('culinary-resources.php') ?>">Culinary Resources</a>
-            <a class="<?= $currentPage === 'educational-resources.php' ? 'active' : '' ?>" href="<?= url('educational-resources.php') ?>">Educational Resources</a>
-            <a class="<?= $currentPage === 'contact.php' ? 'active' : '' ?>" href="<?= url('contact.php') ?>">Contact Us</a>
+                <div class="nav-dropdown <?= in_array($currentPage, ['culinary-resources.php', 'educational-resources.php'], true) ? 'active' : '' ?>">
+                    <button class="nav-dropdown-toggle" type="button" aria-expanded="false" aria-controls="resources-nav-menu">
+                        Resources <span aria-hidden="true">&#9662;</span>
+                    </button>
+                    <div class="nav-dropdown-menu" id="resources-nav-menu">
+                        <a class="<?= $currentPage === 'culinary-resources.php' ? 'active' : '' ?>" href="<?= url('culinary-resources.php') ?>">Culinary Resources</a>
+                        <a class="<?= $currentPage === 'educational-resources.php' ? 'active' : '' ?>" href="<?= url('educational-resources.php') ?>">Educational Resources</a>
+                    </div>
+                </div>
+                <a class="<?= $currentPage === 'contact.php' ? 'active' : '' ?>" href="<?= url('contact.php') ?>">Contact Us</a>
+            <?php else: ?>
+                <a class="<?= $currentPage === 'index.php' ? 'active' : '' ?>" href="<?= url('index.php') ?>">Home</a>
+                <a class="<?= $currentPage === 'about.php' ? 'active' : '' ?>" href="<?= url('about.php') ?>">About Us</a>
+                <a class="<?= in_array($currentPage, ['recipes.php', 'recipe.php'], true) ? 'active' : '' ?>" href="<?= url('recipes.php') ?>">Recipe Collection</a>
+                <div class="nav-dropdown <?= in_array($currentPage, ['culinary-resources.php', 'educational-resources.php'], true) ? 'active' : '' ?>">
+                    <button class="nav-dropdown-toggle" type="button" aria-expanded="false" aria-controls="visitor-resources-nav-menu">
+                        Resources <span aria-hidden="true">&#9662;</span>
+                    </button>
+                    <div class="nav-dropdown-menu" id="visitor-resources-nav-menu">
+                        <a class="<?= $currentPage === 'culinary-resources.php' ? 'active' : '' ?>" href="<?= url('culinary-resources.php') ?>">Culinary Resources</a>
+                        <a class="<?= $currentPage === 'educational-resources.php' ? 'active' : '' ?>" href="<?= url('educational-resources.php') ?>">Educational Resources</a>
+                    </div>
+                </div>
+                <a class="<?= $currentPage === 'contact.php' ? 'active' : '' ?>" href="<?= url('contact.php') ?>">Contact Us</a>
             <?php endif; ?>
         </div>
 
@@ -74,8 +93,8 @@ $user = current_user();
                     <button class="button button-small button-outline" type="submit">Log out</button>
                 </form>
             <?php else: ?>
-                <a class="text-link" href="<?= url('login.php') ?>">Log in</a>
-                <a class="button button-small" href="<?= url('register.php') ?>" data-open-join>Join us</a>
+                <a class="text-link" href="<?= url('login.php') ?>" data-open-auth="login">Log in</a>
+                <a class="button button-small" href="<?= url('register.php') ?>" data-open-auth="join">Join us</a>
             <?php endif; ?>
         </div>
     </nav>

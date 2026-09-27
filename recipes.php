@@ -93,7 +93,7 @@ require __DIR__ . '/includes/header.php';
                 <?php foreach ($recipes as $recipe): ?>
                     <article class="recipe-card">
                         <a href="<?= url('recipe.php?id=' . $recipe['recipe_id']) ?>">
-                            <img src="<?= e($recipe['image_path']) ?>" alt="<?= e($recipe['title']) ?>" loading="lazy">
+                            <img src="<?= e(str_starts_with($recipe['image_path'] ?? '', 'http') ? $recipe['image_path'] : url($recipe['image_path'] ?? '')) ?>" alt="<?= e($recipe['title']) ?>" loading="lazy">
                         </a>
                         <div class="card-body">
                             <div class="tag-row"><span><?= e($recipe['cuisine_type']) ?></span><span><?= e($recipe['difficulty']) ?></span></div>

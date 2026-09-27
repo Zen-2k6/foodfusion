@@ -88,7 +88,8 @@ code { background: var(--cream); border-radius: 5px; padding: .15rem .4rem; }
 .nav-links a::after { display: none; }
 .nav-dropdown { position: relative; }
 .nav-dropdown-toggle { display: inline-flex; align-items: center; gap: 5px; color: var(--ink); background: transparent; border: 0; cursor: pointer; }
-.nav-dropdown-menu { position: absolute; top: calc(100% + 9px); left: 0; z-index: 60; min-width: 175px; display: none; padding: 8px; background: var(--white); border: 1px solid var(--line); border-radius: 13px; box-shadow: var(--shadow); }
+.nav-dropdown-menu { position: absolute; top: calc(100% + 4px); left: 0; z-index: 60; min-width: 190px; display: none; padding: 8px; background: var(--white); border: 1px solid var(--line); border-radius: 13px; box-shadow: var(--shadow); }
+.nav-dropdown-menu::before { content: ''; position: absolute; top: -10px; left: 0; right: 0; height: 10px; }
 .nav-dropdown-menu a { display: block; padding: 10px 12px; }
 .nav-dropdown.is-open .nav-dropdown-menu { display: block; }
 .nav-actions { display: flex; align-items: center; gap: 8px; padding-left: 6px; border-left: 1px solid var(--line); }
@@ -322,8 +323,16 @@ td small { margin-top: 3px; color: var(--ink-soft); }
 .site-footer h2 { color: var(--white); }
 .footer-grid { display: grid; grid-template-columns: 1.5fr repeat(3, 1fr); gap: 55px; }
 .footer-grid h2 { font-size: .82rem; letter-spacing: .12em; text-transform: uppercase; }
-.footer-grid > div > a:not(.brand), .social-links a { display: block; margin: 9px 0; color: rgba(255,255,255,.7); text-decoration: none; }
+.footer-grid > div > a:not(.brand) { display: block; margin: 9px 0; color: rgba(255,255,255,.7); text-decoration: none; }
 .footer-grid a:hover { color: var(--white); }
+.social-links { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; }
+.social-btn { display: inline-flex; align-items: center; gap: 10px; padding: 7px 12px; border-radius: 9px; color: rgba(255,255,255,.85); text-decoration: none; font-size: .85rem; font-weight: 500; transition: background .2s ease, color .2s ease, transform .2s ease; background: rgba(255,255,255,.07); }
+.social-btn:hover { color: #fff; background: rgba(255,255,255,.16); transform: translateX(3px); }
+.social-btn svg { flex-shrink: 0; width: 18px; height: 18px; }
+.social-facebook:hover svg { color: #3b82f6; }
+.social-instagram:hover svg { color: #ec4899; }
+.social-youtube:hover svg { color: #ef4444; }
+.social-tiktok:hover svg { color: #06b6d4; }
 .footer-bottom { width: min(calc(100% - 40px), var(--container)); margin: 55px auto 0; padding-top: 20px; border-top: 1px solid rgba(255,255,255,.12); font-size: .8rem; }
 
 .cookie-banner { position: fixed; z-index: 90; right: 22px; bottom: 22px; width: min(520px, calc(100% - 44px)); display: flex; justify-content: space-between; gap: 24px; padding: 20px; color: var(--white); background: var(--ink); border: 1px solid rgba(255,255,255,.2); border-radius: 16px; box-shadow: var(--shadow); }
@@ -333,11 +342,21 @@ td small { margin-top: 3px; color: var(--ink-soft); }
 .modal-panel h2 { margin-bottom: 10px; font-size: 2.4rem; }
 .modal-close { position: absolute; top: 14px; right: 16px; width: 40px; height: 40px; border: 0; border-radius: 50%; background: var(--cream); font-size: 1.8rem; cursor: pointer; }
 
+/* Auth modal tabs */
+.auth-tabs { display: flex; background: var(--cream); padding: 5px; border-radius: 12px; gap: 6px; margin-bottom: 8px; }
+.auth-tab-btn { flex: 1; padding: 10px 14px; border: 0; background: transparent; border-radius: 8px; font-size: 0.9rem; font-weight: 700; color: var(--ink-soft); cursor: pointer; transition: all .2s ease; }
+.auth-tab-btn:hover { color: var(--ink); }
+.auth-tab-btn.is-active { background: var(--white); color: var(--coral-dark); box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+.auth-tab-panel[hidden] { display: none !important; }
+.text-link-button { background: transparent; border: 0; padding: 0; color: var(--coral); font-weight: 700; text-decoration: underline; cursor: pointer; font-size: inherit; }
+.text-link-button:hover { color: var(--coral-dark); }
+
 @keyframes fade-in { from { opacity: 0; transform: translateX(15px); } to { opacity: 1; transform: none; } }
 @keyframes modal-in { from { opacity: 0; transform: translateY(20px) scale(.98); } to { opacity: 1; transform: none; } }
 
-@media (hover: hover) and (min-width: 1381px) {
-    .nav-dropdown:hover .nav-dropdown-menu { display: block; }
+@media (hover: hover) and (min-width: 992px) {
+    .nav-dropdown:hover .nav-dropdown-menu,
+    .nav-dropdown.is-open .nav-dropdown-menu { display: block; }
 }
 
 @media (max-width: 1380px) {
