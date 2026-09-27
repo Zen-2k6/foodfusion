@@ -49,8 +49,8 @@ require __DIR__ . '/includes/header.php';
                 ?>
                 <article class="resource-card">
                     <?php if ($embedUrl): ?>
-                        <div class="video-container" style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: 12px 12px 0 0; background: #000;">
-                            <iframe src="<?= e($embedUrl) ?>" title="<?= e($resource['title']) ?>" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0;" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen loading="lazy"></iframe>
+                        <div class="video-container">
+                            <iframe src="<?= e($embedUrl) ?>" title="<?= e($resource['title']) ?>" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen loading="lazy"></iframe>
                         </div>
                     <?php else: ?>
                         <img src="<?= e($resource['thumbnail_path'] ?: 'https://images.unsplash.com/photo-1556911220-e15b29be8c8f?auto=format&fit=crop&w=1200&q=80') ?>" alt="<?= e($resource['title']) ?>" loading="lazy">
