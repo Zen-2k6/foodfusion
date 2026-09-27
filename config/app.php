@@ -1,4 +1,21 @@
 <?php
+// Report errors during local development instead of a blank HTTP 500 page
+ini_set('display_errors', '1');
+ini_set('display_startup_errors', '1');
+error_reporting(E_ALL);
+
+// Compatibility polyfills for PHP < 8.0
+if (!function_exists('str_starts_with')) {
+    function str_starts_with(string $haystack, string $needle): bool {
+        return $needle === '' || strpos($haystack, $needle) === 0;
+    }
+}
+if (!function_exists('str_ends_with')) {
+    function str_ends_with(string $haystack, string $needle): bool {
+        return $needle === '' || substr($haystack, -strlen($needle)) === $needle;
+    }
+}
+
 // Shared settings used by every page.
 define('SITE_NAME', 'FoodFusion');
 // Determine base URL: supports standalone server, env override, and XAMPP subdirectories
